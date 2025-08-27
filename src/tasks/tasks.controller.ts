@@ -13,6 +13,7 @@ import { TasksService } from './tasks.service';
 import { Task, TaskStatus } from './task.model';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
+import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -20,12 +21,7 @@ export class TasksController {
 
     @Get('/getTask')
     getTaskById(@Query('id') id: string): Task {
-        const task = this.tasksService.getTaskById(id);
-        if (!task) {
-            throw new NotFoundException(`Task with id ${id} not found`);
-        }
-
-        return task;
+        return this.tasksService.getTaskById(id);
     }
 
     @Delete('/deleteTask/:taskId')
@@ -50,7 +46,7 @@ export class TasksController {
     @Patch('/updateTask/:taskId/status')
     updateTaskStatus(
         @Param('taskId') taskId: string,
-        @Body() body: { status: TaskStatus },
+        @Body() body: UpdateTaskStatusDto,
     ): void {
         this.tasksService.updateTaskStatus(taskId, body.status);
     }
