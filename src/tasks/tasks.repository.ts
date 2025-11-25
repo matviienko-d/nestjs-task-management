@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { DataSource, DeleteResult, Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { TaskStatus } from './task.model';
@@ -8,6 +8,7 @@ import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class TasksRepository extends Repository<Task> {
+    private logger = new Logger('TasksRepository');
     constructor(dataSource: DataSource) {
         super(Task, dataSource.createEntityManager());
     }
@@ -46,7 +47,11 @@ export class TasksRepository extends Repository<Task> {
         if (status) {
             query.andWhere('task.status = :status', { status });
         }
-
-        return await query.getMany();
+        try {
+            return await query.getMany();
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException('Error searching for tasks');
+        }
     }
 }
